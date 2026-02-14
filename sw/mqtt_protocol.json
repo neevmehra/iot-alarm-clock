@@ -1,0 +1,25 @@
+{
+  "description": "Lab 4E MQTT protocol: web <-> broker <-> ESP <-> TM4C. Serial between ESP and TM4C uses cmd,value (w2b) and mode,hour,min,sec,mil (b2w).",
+  "w2b": {
+    "description": "Web to board. ESP subscribes to eid/w2b/# and forwards to TM4C as 'cmd,value\\n'.",
+    "commands": [
+      { "cmd": "mil", "topic": "eid/w2b/mil", "payload": "0|1", "action": "Set 12/24 hour display (0=12hr, 1=24hr)" },
+      { "cmd": "inc", "topic": "eid/w2b/inc", "payload": "1", "action": "Increment current mode field (alarm hr, alarm min, clock hr, clock min)" },
+      { "cmd": "dec", "topic": "eid/w2b/dec", "payload": "1", "action": "Decrement current mode field" },
+      { "cmd": "mode", "topic": "eid/w2b/mode", "payload": "0|1|2|3", "action": "Set edit mode: 0=alarm hour, 1=alarm min, 2=clock hour, 3=clock min" },
+      { "cmd": "theme", "topic": "eid/w2b/theme", "payload": "light|dark", "action": "Display theme" },
+      { "cmd": "freq", "topic": "eid/w2b/freq", "payload": "1", "action": "Cycle speaker frequency" }
+    ]
+  },
+  "b2w": {
+    "description": "Board to web. TM4C sends one line per tick: mode,hour,min,sec,mil. ESP publishes to eid/b2w/*.",
+    "fields": [
+      { "name": "mode", "topic": "eid/b2w/mode", "values": "0-3" },
+      { "name": "hour", "topic": "eid/b2w/hour", "values": "0-23" },
+      { "name": "min", "topic": "eid/b2w/min", "values": "0-59" },
+      { "name": "sec", "topic": "eid/b2w/sec", "values": "0-59" },
+      { "name": "mil", "topic": "eid/b2w/mil", "values": "0|1", "description": "12/24 (0=12hr, 1=24hr)" }
+    ],
+    "serial_format": "mode,hour,min,sec,mil\\n"
+  }
+}

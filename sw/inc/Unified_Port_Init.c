@@ -273,8 +273,8 @@ void Port_E_Init(void){
   GPIO_PORTE_AFSEL_R    &= ~0x0B;           // disable alt funct on PE3,1,0
   GPIO_PORTE_DEN_R      |=  0x0B;           // enable digital I/O on PE3,1,0
   
-  GPIO_PORTE_PCTL_R      = (GPIO_PORTE_PCTL_R 
-                         & 0xFFFF0F00);
+  /* Clear PCTL for PE3,2,1,0 only; keep PE4/PE5 as UART5 (0x00110000) so ESP link works */
+  GPIO_PORTE_PCTL_R      = (GPIO_PORTE_PCTL_R & 0x00FF0000);
   
 // ---------------  Initialize PE2 as AIN1  ---------------------------------  
   

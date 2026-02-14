@@ -430,7 +430,7 @@ IntDefaultHandler(void)
 void SVC_Handler(void){ while(1){}}                // SVCall Handler
 void DebugMon_Handler(void){ while(1){}}           // Debug Monitor Handler
 void PendSV_Handler(void){ while(1){}}             // PendSV Handler
-void SysTick_Handler(void){ while(1){}}            // SysTick Handler
+void __attribute__((weak)) SysTick_Handler(void){ while(1){}}  // weak: Lab3Clock.c provides if used
 void GPIOPortA_Handler(void){ while(1){}}          // GPIO Port A
 void GPIOPortB_Handler(void){ while(1){}}          // GPIO Port B
 void GPIOPortC_Handler(void){ while(1){}}          // GPIO Port C
