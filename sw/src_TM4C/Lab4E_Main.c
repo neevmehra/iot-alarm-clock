@@ -156,9 +156,10 @@ int main(void) {
       else if (Mode == 2) ST7735_OutString("Mode: SET MIN   ");
       else if (Mode == 3) ST7735_OutString("Mode: SET ALRM H");
       else                ST7735_OutString("Mode: SET ALRM M");
-      ST7735_SetCursor(0, 4);
-      { char w = MQTT_LastW2BCmd(); ST7735_OutString("W2B:"); ST7735_OutChar(w ? w : '-'); ST7735_OutString("   "); }
       DrawClock();
+      /* Draw W2B after clock so it isn't covered; use bottom row so it stays visible */
+      ST7735_SetCursor(0, 18);
+      { char w = MQTT_LastW2BCmd(); ST7735_OutString("W2B:"); ST7735_OutChar(w ? w : '-'); ST7735_OutString("   "); }
     }
   }
 }
