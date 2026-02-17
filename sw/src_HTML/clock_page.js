@@ -15,9 +15,10 @@ var hour     = 0;
 var minute   = 0;
 var second   = 0;
 var mil_time = 0;   // 0 = 12-hour, 1 = 24-hour
+var hour_is_pm = false;  // Track if current hour is PM (for 12hr→24hr conversion)
 
 // TODO: update eid with your own.
-var hostname        = "192.168.86.57";
+var hostname        = "192.168.137.239";
 var port            = "9001";
 var eid             = "nm34484_sds4578"
 var clientId        = "mqtt_ee445l_" + eid;
@@ -98,7 +99,17 @@ function onMessageArrived(topic, message) {
 			break;
 		case hour_bd:
 			var h = parseInt(msg, 10);
-			if (!isNaN(h) && ((h >= 0 && h <= 23) || (h >= 1 && h <= 12))) { hour = h; timeUpdated = true; }
+			if (!isNaN(h) && ((h >= 0 && h <= 23) || (h >= 1 && h <= 12))) {
+				// Board sends 1-12 (12hr format). Track AM/PM by detecting wrap from 12→1 (midnight = AM).
+				if (h === 1 && hour === 12) {
+					hour_is_pm = false;  // Wrapped from 12 to 1 = midnight (AM)
+				} else if (h === 12 && hour !== 12) {
+					// Just hit 12 - assume PM (noon) unless we're coming from 11 (then it's 11 AM → 12 PM)
+					hour_is_pm = true;
+				}
+				hour = h;
+				timeUpdated = true;
+			}
 			break;
 		case min_bd:
 			var mn = parseInt(msg, 10);
@@ -118,7 +129,14 @@ function onMessageArrived(topic, message) {
 			break;
 		case mil_bd:
 			var mil = parseInt(msg, 10);
-			if (mil === 0 || mil === 1) { mil_time = mil; timeUpdated = true; }
+			if (mil === 0 || mil === 1) {
+				// When switching to 24hr mode, if hour is 1-11, assume PM for proper conversion
+				if (mil === 1 && mil_time === 0 && hour >= 1 && hour <= 11) {
+					hour_is_pm = true;
+				}
+				mil_time = mil;
+				timeUpdated = true;
+			}
 			break;
 		default:
 			break;
@@ -145,6 +163,11 @@ function publishTo(topic, payload) {
 // 1=12/24, 2=inc, 3=dec, 4=mode cycle, 5=theme, 6=speaker freq
 // -----------------------------------------------------------------------
 function toggleMode() {
+	// When toggling 12/24, if switching to 24hr and hour is 1-11, assume PM for conversion
+	// (This is a heuristic since board doesn't send AM/PM; user can adjust if needed)
+	if (mil_time === 0 && hour >= 1 && hour <= 11) {
+		hour_is_pm = true;  // Assume PM when toggling to 24hr for hours 1-11
+	}
 	publishTo(w2b, "1");
 }
 function toggle_mode() { toggleMode(); }
@@ -193,19 +216,18 @@ function updateBoardClockDisplay() {
 	var period = "";
 
 	if (mil_time === 0) {
-		if (hour === 0) {
-			displayHour = 12;
-			period = "AM";
-		} else if (hour <= 11) {
-			displayHour = hour;
-			period = "AM";
-		} else if (hour === 12) {
-			displayHour = 12;
-			period = "PM";
+		// 12-hour format: board sends 1-12, display with AM/PM
+		displayHour = hour;  // Board already sends 1-12
+		period = hour_is_pm ? "PM" : "AM";
+	} else {
+		// 24-hour format: convert board's 1-12 to 0-23
+		// Board sends 1-12. If PM, add 12. If AM, use as-is (except 12→0).
+		if (hour === 12) {
+			displayHour = hour_is_pm ? 12 : 0;  // 12 PM = 12, 12 AM = 0
 		} else {
-			displayHour = hour - 12;
-			period = "PM";
+			displayHour = hour_is_pm ? (hour + 12) : hour;  // 1-11 PM → 13-23, 1-11 AM → 1-11
 		}
+		period = "";  // No AM/PM in 24hr mode
 	}
 
 	var h = update(displayHour);

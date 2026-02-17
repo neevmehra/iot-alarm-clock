@@ -44,8 +44,8 @@
 // ----------------  VARIABLES    ---------------------------------
 //
 char eid[20] = "nm34484_sds4578";            // TODO: Update this with you EID
-char ssid[64] = "VOLT";          // TODO: Update this with your WIFI SSID
-char password[64] = "7870592673101";  // TODO: Update this with your WIFI Password
+char ssid[64] = "JLAPTOP 5354";          // TODO: Update this with your WIFI SSID
+char password[64] = "5y7215L0";  // TODO: Update this with your WIFI Password
 
 // TODO: add more of these depending on your specifications
 char clk_mode[5] = "";
@@ -65,7 +65,7 @@ char ser_buf[SER_BUF_LEN];
 const char *mqtt_username = "";  // Not needed for this appication
 const char *mqtt_password = "";
 //char mqtt_broker[20] = "";  // TODO: Replace if required
-char mqtt_broker[20] = "192.168.86.57";
+char mqtt_broker[20] = "192.168.137.239";
 char port[5] = "1883";                   // TODO: Replace if required
 int mqtt_port;
 

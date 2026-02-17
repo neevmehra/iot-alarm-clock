@@ -55,10 +55,10 @@
 #define BIT3  0x8   
 
 char    eid[32]           = "nm34484_sds4578";       // Your EID goes here
-char    ssid[32]          = "VOLT";       // WiFi Access Point in the 445L Lab
+char    ssid[32]          = "JLAPTOP 5354";       // WiFi Access Point in the 445L Lab
 char    test[32]          = "sdsdsd";
-char    pass[32]          = "7870592673101";
-char    mqtt_broker[32]   = "192.168.86.57";           // MQTT Broker in EER 5.826
+char    pass[32]          = "5y7215L0";
+char    mqtt_broker[32]   = "192.168.137.239";           // MQTT Broker in EER 5.826
 char    mqtt_port[8]      = "1883";
 
 char    inchar;   
