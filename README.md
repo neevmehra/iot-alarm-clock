@@ -1,47 +1,96 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/lGwST8S8)
-# ECE445L-Lab4
+# ECE445L Lab 4E - IoT Alarm Clock with MQTT and ESP8266
 
-Lab 4 Template.
+An embedded IoT alarm clock built on the **TM4C123 LaunchPad** with an **ESP8266 Wi-Fi module**, **MQTT-based communication**, and a **web application interface**. This project extends a prior clock system by enabling real-time remote monitoring and control over Wi-Fi.
 
-## HW
+## Overview
+This project implements a “smart object” that publishes clock state to an MQTT broker and receives control commands from a web application. The system bridges embedded firmware, UART communication, Wi-Fi networking, and a browser-based frontend.
 
-The hw folder should contain your schematic and board files for your PCB or
-circuits. In labs 3-10, you will be creating schematics for your circuit
-in KiCad.
+## Features
+- Real-time clock displayed on the ST7735 LCD
+- Remote control through MQTT publish/subscribe
+- ESP8266 used as the Wi-Fi bridge between the TM4C123 and the broker
+- Web app with clock controls:
+  - Hour++
+  - Hour--
+  - Minute++
+  - Minute--
+  - Second++
+  - Second--
+  - Toggle 12/24-hour mode
+- UART-based communication between TM4C123 and ESP8266
+- Periodic state publishing from the board to the web app
+- Subscription handling for incoming web commands
+- Reuse and extension of prior clock/alarm functionality
 
-## SW
+## System Architecture
+The data flow is:
 
-The sw folder should contain your application firmware and software written for
-the lab. The sw/inc folder contains firmware drivers written for you by
-Professor Valvano. Feel free to write your own (in fact, in some labs, you may
-be required to write your own).
+TM4C123 -> UART -> ESP8266 -> Wi-Fi -> MQTT Broker -> Web App  
+Web App -> MQTT Broker -> ESP8266 -> UART -> TM4C123
 
-You can place any other source files in the sw/ folder. TAs will look at the
-files you create and/or modify for software quality and for running your
-project.
+The TM4C publishes time data, and the web app sends back control commands using MQTT topics scoped to the user/team EID.
 
-## Resources
+## Hardware
+- TI EK-TM4C123GXL LaunchPad
+- ESP8266-ESP01
+- ST7735 TFT LCD
+- External 3.3V regulator for ESP8266
+- Switches
+- Speaker / alarm hardware reused from Lab 3
+- Supporting resistors, capacitors, MOSFET, diode, and wiring
 
-A couple files are provided in the Resources folder so you don't have to keep
-searching for that one TI document. Some of them are immediately useful, like
-the TM4C datasheet. Others may be useful for your final project, like the
-TM4C_System_Design_Guidelines page.
+## Software Components
+### Embedded firmware
+- TM4C123 firmware in C
+- UART interface to ESP8266
+- MQTT serialization/parsing support
+- Clock/alarm logic and LCD update routines
 
-## Git and Github
+### ESP8266 firmware
+- Arduino-based firmware
+- Wi-Fi connection handling
+- MQTT broker connection
+- Topic subscription and publication
+- UART bridge between LaunchPad and MQTT broker
 
-We will extensively use Git and Github for managing lab projects. This makes it
-easier for TAs to grade and help debug the project by allowing the students to
-see commit histories, maintain a common project structure, collaborate with
-partners, merge different codebases, and to debug work.
+### Web application
+- HTML / JavaScript MQTT client
+- WebSocket-based broker communication
+- Live time display and command buttons
 
-Two common ways of using Git and Github are [Github Desktop](https://desktop.github.com/) and the [command line](https://git-scm.com/downloads). [Tutorials](https://dev.to/mollynem/git-github--workflow-fundamentals-5496) are also abundant on the net for you to peruse. We've provided a cheatsheet for git in the Resources folder.
+## MQTT Interface
+Example topic structure:
 
-It is highly recommended to make the most out of Git, even if you've never used
-it before. Version control will save you a lot of suffering, and tools like Git
-or SVN are ubiquitous in the industry.
+- `<eid>/b2w/mode`
+- `<eid>/b2w/hour`
+- `<eid>/b2w/min`
+- `<eid>/b2w/sec`
+- `<eid>/w2b`
 
-## Lab Report
+Where:
+- `b2w` = board to web
+- `w2b` = web to board
 
-Following the lab doc provided at the root of this project, the TAs request you
-submit a lab report in Microsoft Word (or Pages, if you're a Mac user). Please
-name it `EID_lab_LAB_NUMBER_report.pdf`.
+## Key Technical Work
+- Configured UART5 communication between the TM4C123 and ESP8266
+- Modified parser logic for web-to-board commands
+- Built CSV-based data transfer from TM4C firmware to the ESP8266
+- Extended a browser MQTT app for remote clock control
+- Integrated Lab 3 clock behavior into a networked IoT system
+- Debugged timing, subscriptions, and state synchronization across devices
+
+## Validation
+This project was validated by:
+- confirming broker connection from the ESP8266
+- verifying topic publish/subscribe behavior
+- checking synchronized updates on both the LCD and web interface
+- testing remote control actions from the web app
+- observing UART/debug output and timing behavior
+
+## Repository Structure
+```text
+src/        TM4C123 firmware
+esp/        ESP8266 Arduino code
+web/        MQTT web application
+docs/       images, diagrams, report assets
+project/    Keil or IDE project files
