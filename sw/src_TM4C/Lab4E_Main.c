@@ -22,9 +22,13 @@
 #include "inc/MQTT.h"
 #include "inc/Unified_Port_Init.h"
 #include "inc/Lab3Clock.h"
+#include "inc/Dump.h"
 
 #define PF0  (*((volatile uint32_t *)0x40025004))
 #define PF4  (*((volatile uint32_t *)0x40025040))
+
+/* For debugger watch: jitter of MQTT_to_TM4C period (Timer1 counts) */
+volatile uint32_t DebugJitter = 0;
 
 void DisableInterrupts(void);
 void EnableInterrupts(void);
@@ -50,6 +54,8 @@ int main(void) {
   SetupWiFi();
 
   Lab3Clock_Init();   // Port F switches + Sound (PD0 speaker)
+  DumpInit();         // init dump buffers and Timer1 for DumpCapture(Time_Seconds)
+  JitterInit();       // init jitter measurement for MQTT_to_TM4C timing variance
   ST7735_FillScreen(DarkMode ? ST7735_WHITE : ST7735_BLACK);
 
   Timer0A_Init(&Clock_Task, 80000000, 4);   // 1 Hz clock tick (Lab 3)
@@ -160,6 +166,10 @@ int main(void) {
       /* Draw W2B after clock so it isn't covered; use bottom row so it stays visible */
       ST7735_SetCursor(0, 18);
       { char w = MQTT_LastW2BCmd(); ST7735_OutString("W2B:"); ST7735_OutChar(w ? w : '-'); ST7735_OutString("   "); }
+      /* Jitter of MQTT_to_TM4C period (Timer1 counts); add watch expression: DebugJitter */
+      DebugJitter = JitterGet();
+      ST7735_SetCursor(0, 19);
+      { char jbuf[20]; sprintf(jbuf, "Jitter:%lu ", (unsigned long)DebugJitter); ST7735_OutString(jbuf); }
     }
   }
 }

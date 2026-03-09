@@ -6,6 +6,7 @@
 #include "inc/tm4c123gh6pm.h"
 #include "inc/ST7735.h"
 #include "inc/Lab3Clock.h"
+#include "inc/Dump.h"
 
 // ---------- Clock state (shared with MQTT for web sync) ----------
 volatile uint32_t Time_Seconds = 0;
@@ -121,6 +122,8 @@ void Clock_Task(void) {
         Alarm_RemainingMinutes = 0;
     }
     UpdateDisplay = 1;
+
+    DumpCapture(Time_Seconds);   /* lab: Time_Seconds in data buffer for watch */
 }
 
 // ---------- Display helpers ----------

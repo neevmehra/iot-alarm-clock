@@ -80,5 +80,10 @@
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/inc/Lab3Clock.c</locationURI>
 		</link>
+		<link>
+			<name>Dump.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/inc/Dump.c</locationURI>
+		</link>
 	</linkedResources>
 </projectDescription>

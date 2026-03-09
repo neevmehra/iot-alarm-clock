@@ -24,6 +24,7 @@
 #include "UART5.h"
 #include "esp8266.h"
 #include "Lab3Clock.h"
+#include "inc/Dump.h"
 
 #define DEBUG1                // First level of Debug
 //#undef  DEBUG1                // Comment out to enable Debug1
@@ -217,6 +218,7 @@ void TM4C_to_MQTT(void){
 //
 // 
 void MQTT_to_TM4C(void) {
+  JitterMeasure();   /* record variance in period between MQTT_to_TM4C calls */
   /* Drain UART5 until we have a complete line or buffer full (don't rely on one char per call) */
   while ((UART5_FR_R & UART5_FR_RXFE) == 0) {
     input_char = (char)(UART5_DR_R & 0xFF);

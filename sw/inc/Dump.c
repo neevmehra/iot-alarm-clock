@@ -36,17 +36,20 @@ void Timer1_Init(void) {
 }
 
 void DumpInit(void){
-    /* TODO (EE445L Lab 2): complete this. */
+    Timer1_Init();   /* so DumpCapture timestamps (TIMER1_TAR_R) are valid */
+    DumpNum = 0;
 }
 
 void DumpCapture(uint32_t data){
-    /* TODO (EE445L Lab 2): complete this. */
-    // Use TIMER1_TAR_R as current time
+    if (DumpNum < DUMPBUFSIZE) {
+        DumpDataBuf[DumpNum] = data;
+        DumpTimeBuffer[DumpNum] = TIMER1_TAR_R;
+        DumpNum++;
+    }
 }
 
 uint32_t DumpCount(void){ 
-    /* TODO (EE445L Lab 2): complete this. */
-    return 0;
+    return DumpNum;
 }
 
 uint32_t* DumpData(void){ 
@@ -57,19 +60,31 @@ uint32_t* DumpTime(void){
     return DumpTimeBuffer;
 }
 
+static uint32_t JitterLastTime;
+static uint8_t  JitterFirstCall;
+static uint32_t JitterMaxElapsed;
+static uint32_t JitterMinElapsed;
+
 void JitterInit(void){
-    /* TODO (EE445L Lab 2): complete this. */
+    JitterFirstCall = 1;
+    JitterMaxElapsed = 0;
+    JitterMinElapsed = 0xFFFFFFFF;
 }
 
 void JitterMeasure(void){
-    /* TODO (EE445L Lab 2): complete this. */
+    uint32_t currentTime = TIMER1_TAR_R;
+    if (JitterFirstCall) {
+        JitterFirstCall = 0;
+        JitterLastTime = currentTime;
+        return;
+    }
+    // Timer counts down, elapsed = lastTime - currentTime 
+    uint32_t elapsed = JitterLastTime - currentTime;
+    if (elapsed > JitterMaxElapsed) JitterMaxElapsed = elapsed;
+    if (elapsed < JitterMinElapsed) JitterMinElapsed = elapsed;
+    JitterLastTime = currentTime;
 }
 
 uint32_t JitterGet(void){
-    /* TODO (EE445L Lab 2): complete this. */
-    return 42;
+    return JitterMaxElapsed - JitterMinElapsed;
 }
-
-
-
-
